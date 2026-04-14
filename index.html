@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just for you 🥰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #c9346f, #5e0707);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer; /* Suggests clicking anywhere */
+        }
+
+        /* Floating Hearts Background */
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            animation: float 6s linear infinite;
+            opacity: 0.6;
+            user-select: none;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            from { transform: translateY(110vh) rotate(0deg); }
+            to { transform: translateY(-10vh) rotate(360deg); }
+        }
+
+        .h1 { left: 10%; animation-delay: 0s; }
+        .h2 { left: 30%; animation-delay: 2s; }
+        .h3 { left: 55%; animation-delay: 4s; }
+        .h4 { left: 85%; animation-delay: 1s; }
+        .h5 { left: 70%; animation-delay: 3s; }
+
+        /* Main Glassmorphism Card */
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 50px 30px;
+            border-radius: 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0);
+            color: rgb(241, 232, 232);
+            z-index: 2;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(235, 213, 213, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .lyrics-wrapper {
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lyrics {
+            font-size: 26px;
+            line-height: 1.6;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        /* Smooth Fade In/Up Animation */
+        @keyframes lyricFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+                filter: blur(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .playing {
+            animation: lyricFade 0.6s ease forwards;
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="heart h1">💖</div>
+    <div class="heart h2">💕</div>
+    <div class="heart h3">💗</div>
+    <div class="heart h4">💘</div>
+    <div class="heart h5">❤️</div>
+
+    <div class="container">
+        <h1>Just for you 🥰</h1>
+        
+        <div class="lyrics-wrapper">
+            <div class="lyrics" id="lyrics">Tap anywhere ✨</div>
+        </div>
+
+    
+
+    <audio id="song" src="assets/song.mp3" preload="auto"></audio>
+
+    <script>
+        const song = document.getElementById("song");
+        const lyricsBox = document.getElementById("lyrics");
+        const statusNote = document.getElementById("status");
+
+        // Synced Lyrics Array
+        const timedLyrics = [
+            { text: "हमरा से पहले ना हमरा से केहु बाद 💖", time: 0 },
+            { text: "Love you love you कही 💕", time: 3.6 },
+            { text: "हमरा से पहले ना हमरा से केहु बाद 💗", time: 6.0 },
+            { text: "Love you love you कही 💞", time: 9.5 },
+            { text: "हो love you love you कही ❤️", time: 12 },
+            { text: "हमके बनाला बॉडीगॉर्ड ब्यूटी बनल रही 😍", time: 14 },
+            { text: "हमके बनाला बॉडीगॉर्ड ब्यूटी बनल रही ✨", time: 18 },
+            { text: "Forever Yours... 💍", time: 22 }
+        ];
+
+        // Function to handle play
+        function playMagic() {
+            song.play();
+            statusNote.style.display = "none";
+        }
+
+        // Global click listener to start music
+        document.body.addEventListener("click", playMagic);
+
+        // Advanced Sync Logic
+        song.addEventListener("timeupdate", () => {
+            const currentTime = song.currentTime;
+            
+            // Find the correct lyric based on current time
+            // We find the last element in the array where the time is less than current song time
+            let activeLyric = timedLyrics.filter(lyric => currentTime >= lyric.time).pop();
+
+            if (activeLyric && lyricsBox.innerText !== activeLyric.text) {
+                lyricsBox.innerText = activeLyric.text;
+                
+                // Reset and trigger animation
+                lyricsBox.classList.remove("playing");
+                void lyricsBox.offsetWidth; // Force reflow to restart animation
+                lyricsBox.classList.add("playing");
+            }
+        });
+
+        // Loop the song and reset lyrics properly
+        song.addEventListener("ended", () => {
+            song.currentTime = 0;
+            song.play();
+        });
+    </script>
+</body>
+</html>
