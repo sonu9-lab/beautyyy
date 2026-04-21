@@ -19,22 +19,24 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            cursor: pointer; /* Suggests clicking anywhere */
+            cursor: pointer;
         }
 
-        /* Floating Hearts Background */
+        /* Slow Drifting Hearts Background */
         .heart {
             position: absolute;
             font-size: 24px;
-            animation: float 6s linear infinite;
-            opacity: 0.6;
+            animation: float 10s linear infinite;
+            opacity: 0.5;
             user-select: none;
             z-index: 1;
         }
 
         @keyframes float {
-            from { transform: translateY(110vh) rotate(0deg); }
-            to { transform: translateY(-10vh) rotate(360deg); }
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
         }
 
         .h1 { left: 10%; animation-delay: 0s; }
@@ -43,9 +45,9 @@
         .h4 { left: 85%; animation-delay: 1s; }
         .h5 { left: 70%; animation-delay: 3s; }
 
-        /* Main Glassmorphism Card */
+        /* Glassmorphism Card */
         .container {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             padding: 50px 30px;
@@ -54,57 +56,52 @@
             width: 90%;
             max-width: 450px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0);
-            color: rgb(241, 232, 232);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
             z-index: 2;
-            position: relative;
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 24px;
             margin-bottom: 30px;
-            text-shadow: 0 2px 10px rgba(235, 213, 213, 0.1);
-            letter-spacing: 1px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            opacity: 0.9;
         }
 
         .lyrics-wrapper {
-            min-height: 140px;
+            min-height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .lyrics {
-            font-size: 26px;
+            font-size: 24px;
             line-height: 1.6;
-            font-weight: 700;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-            transition: all 0.3s ease;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            min-height: 1.5em;
         }
 
-        /* Smooth Fade In/Up Animation */
-        @keyframes lyricFade {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-                filter: blur(5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-                filter: blur(0);
-            }
+        /* Typing Cursor Effect */
+        .lyrics::after {
+            content: "|";
+            animation: blink 0.8s infinite;
+            margin-left: 5px;
+            color: #ff8fb1;
         }
 
-        .playing {
-            animation: lyricFade 0.6s ease forwards;
+        @keyframes blink {
+            50% { opacity: 0; }
         }
 
-        .footer-note {
+        .hint {
             margin-top: 20px;
-            font-size: 14px;
-            opacity: 0.8;
-            font-style: italic;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.6;
         }
     </style>
 </head>
@@ -120,59 +117,75 @@
         <h1>Just for you 🥰</h1>
         
         <div class="lyrics-wrapper">
-            <div class="lyrics" id="lyrics">Tap anywhere ✨</div>
+            <div class="lyrics" id="lyrics">Tap ✨</div>
         </div>
 
-    
+        <div class="hint" id="hint">pyaar se!</div>
+    </div>
 
     <audio id="song" src="assets/song.mp3" preload="auto"></audio>
 
     <script>
         const song = document.getElementById("song");
         const lyricsBox = document.getElementById("lyrics");
-        const statusNote = document.getElementById("status");
+        const hint = document.getElementById("hint");
 
         // Synced Lyrics Array
         const timedLyrics = [
-            { text: "हमरा से पहले ना हमरा से केहु बाद 💖", time: 0 },
-            { text: "Love you love you कही 💕", time: 3.6 },
-            { text: "हमरा से पहले ना हमरा से केहु बाद 💗", time: 6.0 },
-            { text: "Love you love you कही 💞", time: 9.5 },
-            { text: "हो love you love you कही ❤️", time: 12 },
-            { text: "हमके बनाला बॉडीगॉर्ड ब्यूटी बनल रही 😍", time: 14 },
-            { text: "हमके बनाला बॉडीगॉर्ड ब्यूटी बनल रही ✨", time: 18 },
+            { text: "हमरा से पहले ना हमसे केहू बाद... 💖", time: 0 },
+            { text: "Love you love you कही... 💕", time: 3.6 },
+            { text: "हमरा से पहले ना हमसे केहू बाद... 💗", time: 6.0 },
+            { text: "Love you love you कही... 💞", time: 9.5 },
+            { text: "हो love you love you कही... ❤️", time: 12 },
+            { text: "हमके बनालऽ बॉडीगार्ड ब्यूटी बनल रही 😍", time: 14 },
+            { text: "हमके बनालऽ बॉडीगार्ड ब्यूटी बनल रही ✨", time: 18 },
             { text: "Forever Yours... 💍", time: 22 }
         ];
 
-        // Function to handle play
-        function playMagic() {
-            song.play();
-            statusNote.style.display = "none";
+        let currentIdx = -1;
+        let typingTimeout;
+
+        function typeWriter(text, i = 0) {
+            if (i === 0) {
+                lyricsBox.innerHTML = "";
+                clearTimeout(typingTimeout);
+            }
+            
+            if (i < text.length) {
+                lyricsBox.innerHTML += text.charAt(i);
+                typingTimeout = setTimeout(() => typeWriter(text, i + 1), 60);
+            }
         }
 
-        // Global click listener to start music
+        function playMagic() {
+            song.play().catch(e => console.log("Audio play failed"));
+            hint.style.opacity = "0";
+            document.body.removeEventListener("click", playMagic);
+        }
+
         document.body.addEventListener("click", playMagic);
 
-        // Advanced Sync Logic
         song.addEventListener("timeupdate", () => {
             const currentTime = song.currentTime;
             
-            // Find the correct lyric based on current time
-            // We find the last element in the array where the time is less than current song time
-            let activeLyric = timedLyrics.filter(lyric => currentTime >= lyric.time).pop();
+            // Logic to find the correct lyric
+            let activeIdx = timedLyrics.length - 1;
+            for (let i = 0; i < timedLyrics.length; i++) {
+                if (currentTime < timedLyrics[i].time) {
+                    activeIdx = i - 1;
+                    break;
+                }
+            }
 
-            if (activeLyric && lyricsBox.innerText !== activeLyric.text) {
-                lyricsBox.innerText = activeLyric.text;
-                
-                // Reset and trigger animation
-                lyricsBox.classList.remove("playing");
-                void lyricsBox.offsetWidth; // Force reflow to restart animation
-                lyricsBox.classList.add("playing");
+            if (activeIdx !== currentIdx && activeIdx >= 0) {
+                currentIdx = activeIdx;
+                typeWriter(timedLyrics[activeIdx].text);
             }
         });
 
-        // Loop the song and reset lyrics properly
+        // Loop logic
         song.addEventListener("ended", () => {
+            currentIdx = -1;
             song.currentTime = 0;
             song.play();
         });
